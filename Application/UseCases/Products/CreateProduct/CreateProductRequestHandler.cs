@@ -1,6 +1,7 @@
 ﻿using Application.Data;
 using Domain.Entities;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,8 +14,10 @@ namespace Application.UseCases.Products.CreateProduct
     public class CreateProductRequestHandler : IRequestHandler<CreateProductRequest, CreateProductResponse>
     {
         public readonly IApiSerilogBdContext _context;
-        public CreateProductRequestHandler(IApiSerilogBdContext context)
+        public readonly ILogger<CreateProductRequestHandler> _logger;
+        public CreateProductRequestHandler(IApiSerilogBdContext context, ILogger<CreateProductRequestHandler> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -25,6 +28,8 @@ namespace Application.UseCases.Products.CreateProduct
             _context.Products.Add(product);
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogWarning("File Was created");
 
             return new CreateProductResponse(product.Name,product.Description);
         }
